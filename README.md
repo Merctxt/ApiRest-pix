@@ -84,47 +84,6 @@ cd api_rest_pix
 | PATCH | `/api/receivers/{id}/set-default` | Definir como padrão |
 | DELETE | `/api/receivers/{id}` | Excluir recebedor |
 
-## 📝 Exemplos de Uso
-
-### Criar um pagamento PIX
-
-```bash
-curl -X POST http://localhost:8080/api/payments \
-  -H "Content-Type: application/json" \
-  -d '{
-    "amount": 100.00,
-    "description": "Pagamento de produto",
-    "txid": "PEDIDO123"
-  }'
-```
-
-### Gerar QR Code
-
-```bash
-# Baixar QR Code como imagem PNG
-curl -o qrcode.png http://localhost:8080/api/payments/1/qrcode
-```
-
-### Aprovar pagamento
-
-```bash
-curl -X PATCH http://localhost:8080/api/payments/1/approve
-```
-
-### Configurar recebedor
-
-```bash
-curl -X POST http://localhost:8080/api/receivers \
-  -H "Content-Type: application/json" \
-  -d '{
-    "pixKey": "email@exemplo.com",
-    "pixKeyType": "EMAIL",
-    "name": "Minha Loja",
-    "city": "SAO PAULO",
-    "merchantCategoryCode": "0000",
-    "isDefault": true
-  }'
-```
 
 ## 🔧 Configuração
 
@@ -153,15 +112,4 @@ O payload PIX segue o padrão EMV QR Code conforme especificação do Banco Cent
 | 62 | Additional Data Field | Contém o TXID |
 | 63 | CRC16 | Checksum CRC16-CCITT-FALSE |
 
-## 🔍 Auditoria (Hibernate Envers)
-
-Todas as alterações nas entidades `Payment` e `Receiver` são auditadas automaticamente pelo Hibernate Envers. As tabelas de auditoria são:
-
-- `payments_aud` - Histórico de alterações de pagamentos
-- `receivers_aud` - Histórico de alterações de recebedores
-- `revinfo` - Informações das revisões
-
-## 📄 Licença
-
-Este projeto está sob a licença Apache 2.0.
 
