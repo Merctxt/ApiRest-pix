@@ -2,7 +2,7 @@
 
 API REST para geração de pagamentos via PIX no padrão EMV, desenvolvida com Java, Spring Boot, Hibernate Envers e Lombok.
 
-## 🚀 Tecnologias
+## Tecnologias
 
 - **Java 17**
 - **Spring Boot 3.2.1**
@@ -11,81 +11,66 @@ API REST para geração de pagamentos via PIX no padrão EMV, desenvolvida com J
 - **Lombok** - Redução de boilerplate
 - **Springdoc OpenAPI** - Documentação Swagger
 - **ZXing** - Geração de QR Codes
-- **H2 Database** - Banco de dados em memória (desenvolvimento)
+- **PostgreSQL** - Banco de dados (Supabase)
 
-## 📋 Funcionalidades
+## Pré-requisitos
 
-### Pagamentos PIX
-- ✅ Criar pagamento PIX com geração de payload EMV
-- ✅ Gerar QR Code a partir do payload
-- ✅ Listar pagamentos (todos ou por status)
-- ✅ Buscar pagamento por ID ou TXID
-- ✅ Atualizar pagamento
-- ✅ Aprovar pagamento (simular confirmação)
-- ✅ Cancelar pagamento
-- ✅ Excluir pagamento
-
-### Configuração de Recebedores
-- ✅ Cadastrar recebedores PIX
-- ✅ Definir recebedor padrão
-- ✅ Listar recebedores
-- ✅ Atualizar recebedor
-- ✅ Excluir recebedor
-
-## 🏃 Como Executar
-
-### Pré-requisitos
 - Java 17+
 - Maven 3.6+
 
-### Executar a aplicação
+## Configuração
+
+Crie um arquivo `.env` na raiz do projeto:
+
+```env
+# Environment (dev ou prod)
+ENV=dev
+
+# Server Configuration
+SERVER_ADDRESS=0.0.0.0
+SERVER_PORT=8080
+
+# Database Configuration (PostgreSQL Supabase)
+DB_HOST=seu-host.supabase.co
+DB_PORT=5432
+DB_NAME=postgres
+DB_USER=postgres
+DB_PASSWORD=sua_senha
+
+# PIX Configuration
+PIX_KEY=sua_chave_pix
+PIX_RECEIVER_NAME=Nome do Recebedor
+PIX_RECEIVER_CITY=CIDADE
+```
+
+### Variável ENV
+
+- **`ENV=dev`**: Swagger aponta para `http://localhost:8080`
+- **`ENV=prod`**: Swagger aponta para `https://pix.giovannidev.com`
+
+Para produção, basta mudar:
+```env
+ENV=prod
+SERVER_PORT=80
+```
+
+## Executar a Aplicação
 
 ```bash
-# Clone o repositório
-cd api_rest_pix
-
 # Compile e execute
 ./mvnw spring-boot:run
 ```
 
-### Acessar a aplicação
+A aplicação vai usar as variáveis do `.env` automaticamente.
 
-- **API**: http://localhost:8080
+## Acessar a Aplicação
+
+- **API**: http://localhost:8080 (ou porta configurada no .env)
 - **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **H2 Console**: http://localhost:8080/h2-console (JDBC URL: `jdbc:h2:mem:pixdb`)
-
-## 📖 Endpoints
-
-### Pagamentos (`/api/payments`)
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/payments` | Criar pagamento PIX |
-| GET | `/api/payments` | Listar todos os pagamentos |
-| GET | `/api/payments/{id}` | Buscar pagamento por ID |
-| GET | `/api/payments/txid/{txid}` | Buscar pagamento por TXID |
-| GET | `/api/payments/status/{status}` | Listar por status |
-| PUT | `/api/payments/{id}` | Atualizar pagamento |
-| PATCH | `/api/payments/{id}/approve` | Aprovar pagamento |
-| PATCH | `/api/payments/{id}/cancel` | Cancelar pagamento |
-| DELETE | `/api/payments/{id}` | Excluir pagamento |
-| GET | `/api/payments/{id}/payload` | Obter payload PIX |
-| GET | `/api/payments/{id}/qrcode` | Gerar QR Code PNG |
-
-### Recebedores (`/api/receivers`)
-
-| Método | Endpoint | Descrição |
-|--------|----------|-----------|
-| POST | `/api/receivers` | Criar recebedor |
-| GET | `/api/receivers` | Listar recebedores |
-| GET | `/api/receivers/{id}` | Buscar recebedor por ID |
-| GET | `/api/receivers/default` | Buscar recebedor padrão |
-| PUT | `/api/receivers/{id}` | Atualizar recebedor |
-| PATCH | `/api/receivers/{id}/set-default` | Definir como padrão |
-| DELETE | `/api/receivers/{id}` | Excluir recebedor |
+- **API Docs**: http://localhost:8080/api-docs
 
 
-## 🔧 Configuração
+## Configuração
 
 As configurações podem ser alteradas em `application.properties` ou via variáveis de ambiente:
 
@@ -95,7 +80,7 @@ As configurações podem ser alteradas em `application.properties` ou via variá
 | `PIX_RECEIVER_NAME` | Nome do recebedor padrão | `Venus Store` |
 | `PIX_RECEIVER_CITY` | Cidade do recebedor padrão | `SAO PAULO` |
 
-## 📊 Padrão EMV PIX
+## Padrão EMV PIX
 
 O payload PIX segue o padrão EMV QR Code conforme especificação do Banco Central do Brasil:
 
@@ -111,5 +96,122 @@ O payload PIX segue o padrão EMV QR Code conforme especificação do Banco Cent
 | 60 | Merchant City | Cidade do recebedor (máx. 15 chars) |
 | 62 | Additional Data Field | Contém o TXID |
 | 63 | CRC16 | Checksum CRC16-CCITT-FALSE |
+
+## 🚀 Deploy em Produção
+
+### Requisitos do Servidor
+
+Para hospedar a aplicação, certifique-se de que:
+- O servidor aceita tráfego na porta 80
+- O servidor está configurado para escutar em 0.0.0.0
+- O firewall permite conexões na porta 80
+- O domínio `pix.giovannidev.com` está apontando para o IP do servidor
+
+### Passos para Deploy
+
+1. **Clone o repositório no servidor**
+   ```bash
+   git clone <seu-repositorio>
+   cd api-rest-pix
+   ```
+
+2. **Configure as variáveis de ambiente**
+   ```bash
+   cp .env.example .env
+   # Edite o .env com suas credenciais
+   nano .env
+   ```
+
+3. **Execute o deploy**
+   ```bash
+   # Linux/Mac
+   chmod +x deploy.sh
+   ./deploy.sh
+   
+   # Windows PowerShell
+   .\deploy.ps1
+   ```
+
+4. **Verifique se está rodando**
+   ```bash
+   docker ps
+   docker logs api-rest-pix
+   ```
+
+### Configuração de Reverse Proxy (Nginx - Opcional)
+
+Se você usar Nginx como reverse proxy:
+
+```nginx
+server {
+    listen 80;
+    server_name pix.giovannidev.com;
+
+    location / {
+        proxy_pass http://localhost:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+```
+
+### Configuração SSL com Let's Encrypt (Recomendado)
+
+```bash
+# Instalar certbot
+sudo apt install certbot python3-certbot-nginx
+
+# Obter certificado SSL
+sudo certbot --nginx -d pix.giovannidev.com
+
+# Auto-renovação
+sudo certbot renew --dry-run
+```
+
+## 🔍 Troubleshooting
+
+### Erro de conexão com banco de dados
+- Verifique se as credenciais no `.env` estão corretas
+- Confirme se o Supabase permite conexões do IP do servidor
+- Teste a conexão: `psql -h DB_HOST -U DB_USER -d DB_NAME`
+
+### Porta 80 já em uso
+```bash
+# Ver o que está usando a porta 80
+sudo lsof -i :80
+# Ou no Windows
+netstat -ano | findstr :80
+
+# Parar o serviço conflitante ou mudar a porta no .env
+```
+
+### Container não inicia
+```bash
+# Ver logs detalhados
+docker logs api-rest-pix -f
+
+# Reiniciar container
+docker restart api-rest-pix
+```
+
+### Swagger não carrega
+- Verifique se a variável `API_URL` no `.env` está correta
+- Acesse diretamente: `https://pix.giovannidev.com/api-docs`
+- Limpe o cache do navegador
+
+### Erro de permissão na porta 80 (Linux)
+```bash
+# Permitir que aplicações non-root usem porta 80
+sudo setcap 'cap_net_bind_service=+ep' /usr/bin/java
+
+# Ou execute o container com privilégios
+docker run -d -p 80:80 --user root ...
+```
+
+## 📝 Licença
+
+Este projeto está sob a licença Apache 2.0.
 
 

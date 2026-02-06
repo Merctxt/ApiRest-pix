@@ -68,7 +68,9 @@ Thumbs.db
 
 # Application properties with sensitive data
 application-local.properties
-application-prod.properties
+.env
+.env.local
+.env.production
 
 # H2 Database
 *.db
