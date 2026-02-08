@@ -28,11 +28,24 @@ public class DotenvConfig implements ApplicationContextInitializer<ConfigurableA
                 System.setProperty(key, value);
             });
 
+            // Converte DATABASE_URL do Railway (postgresql://...) para JDBC (jdbc:postgresql://...)
+            String databaseUrl = System.getenv("DATABASE_URL");
+            if (databaseUrl != null && !databaseUrl.isEmpty()) {
+                if (databaseUrl.startsWith("postgresql://")) {
+                    databaseUrl = "jdbc:" + databaseUrl;
+                } else if (!databaseUrl.startsWith("jdbc:")) {
+                    databaseUrl = "jdbc:postgresql://" + databaseUrl;
+                }
+                System.setProperty("DATABASE_URL", databaseUrl);
+                dotenvMap.put("DATABASE_URL", databaseUrl);
+                System.out.println("✅ DATABASE_URL configurada: " + databaseUrl.replaceAll(":[^:@]+@", ":***@"));
+            }
+
             environment.getPropertySources().addFirst(new MapPropertySource("dotenvProperties", dotenvMap));
 
-            System.out.println("✅ Variáveis .env carregadas com sucesso!");
+            System.out.println("✅ Variáveis carregadas com sucesso!");
         } catch (Exception e) {
-            System.err.println("⚠️ Erro ao carregar .env: " + e.getMessage());
+            System.err.println("⚠️ Erro ao carregar config: " + e.getMessage());
         }
     }
 }
